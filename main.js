@@ -113,14 +113,24 @@ document.addEventListener('DOMContentLoaded', function () {
     // Placeholder layers for coffee shops and cup exchanges
     var coffeeShopsLayer = L.layerGroup().addTo(map);
 
+    // Define a custom coffee icon for the refill stations
+    var coffeeIcon = L.icon({
+        iconUrl: 'icons/coffee.png', // Replace with the path to your coffee icon image
+        iconSize: [32, 37], // Size of the icon
+        iconAnchor: [16, 37], // Point of the icon which will correspond to marker's location
+        popupAnchor: [0, -28] // Point from which the popup should open relative to the iconAnchor
+    });
+
     // GeoJSON layer for cup exchanges with enhanced popup information
     var cupExchangesLayer = L.geoJson(refills, {
+        pointToLayer: function (feature, latlng) {
+            return L.marker(latlng, { icon: coffeeIcon });
+        },
         onEachFeature: function (feature, layer) {
             var props = feature.properties;
             var popupContent = '<b>' + (props.name || 'Unknown Station') + '</b><br>' +
                 'Address: ' + (props.Straße || 'No Address') + '<br>' +
-                'URL: ' + (props.URL || "No Link")
-                //'Type: ' + (props.type || 'N/A');
+                'URL: ' + (props.URL || "No Link");
             layer.bindPopup(popupContent);
         }
     }).addTo(map);
