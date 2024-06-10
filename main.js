@@ -1,4 +1,17 @@
 document.addEventListener('DOMContentLoaded', function () {
+    if (typeof countries === 'undefined') {
+        console.error('Countries data is not loaded.');
+        return;
+    }
+
+    if (typeof refills === 'undefined') {
+        console.error('Refills data is not loaded.');
+        return;
+    }
+
+    //console.log('Countries Data:', countries);
+    //console.log('Refills Data:', refills);
+
     var map = L.map('map').setView([20, 0], 2); // Center the map for a global view
 
     // Add a basic tile layer
@@ -7,39 +20,93 @@ document.addEventListener('DOMContentLoaded', function () {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Basic style for each country
-    function style(feature) {
-        return {
-            weight: 2,
-            opacity: 1,
-            color: 'white',
-            dashArray: '3',
-            fillOpacity: 0.7,
-            fillColor: getColor(feature.properties.production)
-        };
+    // Variables for the selected year and data type
+    var selectedYear = '2016';
+    var selectedData = 'Total.Cup.Points';
+
+    // Function to get data for a specific year and data type
+    function getDataForYear(ratings, year, dataType) {
+        if (!ratings || !Array.isArray(ratings)) {
+            //console.log('Ratings is not an array or is missing:', ratings);
+            return null;
+        }
+        var dataEntry = ratings.find(r => r.Year == year);
+        if (!dataEntry) {
+            //console.log('No data entry found for year:', year);
+            return null;
+        }
+        return dataEntry.Data[dataType] || null;
     }
 
-    // Color based on production value
-    function getColor(production) {
-        return production > 50000 ? '#800026' :
-            production > 20000 ? '#BD0026' :
-                production > 10000 ? '#E31A1C' :
-                    production > 5000 ? '#FC4E2A' :
-                        production > 1000 ? '#FD8D3C' :
-                            production > 500 ? '#FEB24C' :
-                                '#FFEDA0';
+    // Function to get the min and max values for the selected data type and year
+    function getMinMaxValues(countries, year, dataType) {
+        var values = countries.features.map(function (feature) {
+            return getDataForYear(feature.properties.ratings, year, dataType);
+        }).filter(function (value) {
+            return value !== null;
+        });
+
+        if (values.length === 0) {
+            //console.log('No valid values found for', dataType, 'in year', year);
+            return { min: 0, max: 0 }; // Default to 0 to avoid errors
+        }
+
+        var min = Math.min.apply(Math, values);
+        var max = Math.max.apply(Math, values);
+
+        return { min: min, max: max };
     }
 
-    // Assign random production values to each country
-    countries.features.forEach(function (feature) {
-        feature.properties.production = Math.floor(Math.random() * 60000);
-    });
+    // Color based on data value and dynamically calculated scale
+    function getColor(value, min, max) {
+        if (value === null) return '#FFEDA0'; // Default color for NA
+        var scale = (value - min) / (max - min);
+        return scale > 0.8 ? '#800026' :
+            scale > 0.6 ? '#BD0026' :
+                scale > 0.4 ? '#E31A1C' :
+                    scale > 0.2 ? '#FC4E2A' :
+                        scale > 0.1 ? '#FD8D3C' :
+                            '#FEB24C';
+    }
+
+    // Function to update the map with new data
+    function updateMap() {
+        var minMax = getMinMaxValues(countries, selectedYear, selectedData);
+        //console.log('MinMax:', minMax);
+        coffeeStatsLayer.eachLayer(function (layer) {
+            var feature = layer.feature;
+            var value = getDataForYear(feature.properties.ratings, selectedYear, selectedData);
+            console.log('Country:', feature.properties.ADMIN, 'Value:', value);
+            layer.setStyle({
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7,
+                fillColor: getColor(value, minMax.min, minMax.max)
+            });
+            layer.bindPopup('Country: ' + (feature.properties.ADMIN || 'Unknown') + '<br>Value (' + selectedYear + '): ' + (value !== null ? value : 'NA'));
+        });
+    }
 
     // GeoJSON layer for coffee statistics
     var coffeeStatsLayer = L.geoJson(countries, {
-        style: style,
+        style: function (feature) {
+            var minMax = getMinMaxValues(countries, selectedYear, selectedData);
+            var value = getDataForYear(feature.properties.ratings, selectedYear, selectedData);
+            console.log('Country:', feature.properties.ADMIN, 'Initial Value:', value);
+            return {
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7,
+                fillColor: getColor(value, minMax.min, minMax.max)
+            };
+        },
         onEachFeature: function (feature, layer) {
-            layer.bindPopup('Country: ' + (feature.properties.ADMIN || 'Unknown') + '<br>Production: ' + feature.properties.production);
+            var value = getDataForYear(feature.properties.ratings, selectedYear, selectedData);
+            layer.bindPopup('Country: ' + (feature.properties.ADMIN || 'Unknown') + '<br>Value (' + selectedYear + '): ' + (value !== null ? value : 'NA'));
         }
     }).addTo(map);
 
@@ -50,11 +117,9 @@ document.addEventListener('DOMContentLoaded', function () {
     var cupExchangesLayer = L.geoJson(refills, {
         onEachFeature: function (feature, layer) {
             var props = feature.properties;
-            var popupContent = '<b>' + (props.Name || 'Unknown Station') + '</b><br>' +
+            var popupContent = '<b>' + (props.name || 'Unknown Station') + '</b><br>' +
                 'Address: ' + (props.Straße || 'No Address') + '<br>' +
-                (props.Straßenzusatz ? props.Straßenzusatz + '<br>' : '') +
-                'City: ' + (props.PLZ + ' ' + props.Stadt || 'Unknown') + '<br>' +
-                'Type: ' + (props.Typ || 'N/A');
+                'Type: ' + (props.type || 'N/A');
             layer.bindPopup(popupContent);
         }
     }).addTo(map);
@@ -68,4 +133,19 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     L.control.layers(baseLayers, overlays).addTo(map);
+
+    // Event listeners for the dropdown and slider
+    document.getElementById('dataSelector').addEventListener('change', function (e) {
+        selectedData = e.target.value;
+        updateMap();
+    });
+
+    document.getElementById('yearSlider').addEventListener('input', function (e) {
+        selectedYear = e.target.value;
+        document.getElementById('yearLabel').innerText = selectedYear;
+        updateMap();
+    });
+
+    // Initial map update
+    updateMap();
 });
