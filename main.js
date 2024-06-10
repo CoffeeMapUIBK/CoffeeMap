@@ -119,7 +119,8 @@ document.addEventListener('DOMContentLoaded', function () {
             var props = feature.properties;
             var popupContent = '<b>' + (props.name || 'Unknown Station') + '</b><br>' +
                 'Address: ' + (props.Straße || 'No Address') + '<br>' +
-                'Type: ' + (props.type || 'N/A');
+                'URL: ' + (props.URL || "No Link")
+                //'Type: ' + (props.type || 'N/A');
             layer.bindPopup(popupContent);
         }
     }).addTo(map);
