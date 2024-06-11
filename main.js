@@ -9,9 +9,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    //console.log('Countries Data:', countries);
-    //console.log('Refills Data:', refills);
-
     var map = L.map('map').setView([20, 0], 2); // Center the map for a global view
 
     // Add a basic tile layer
@@ -27,12 +24,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Function to get data for a specific year and data type
     function getDataForYear(ratings, year, dataType) {
         if (!ratings || !Array.isArray(ratings)) {
-            //console.log('Ratings is not an array or is missing:', ratings);
             return null;
         }
         var dataEntry = ratings.find(r => r.Year == year);
         if (!dataEntry) {
-            //console.log('No data entry found for year:', year);
             return null;
         }
         return dataEntry.Data[dataType] || null;
@@ -47,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         if (values.length === 0) {
-            //console.log('No valid values found for', dataType, 'in year', year);
             return { min: 0, max: 0 }; // Default to 0 to avoid errors
         }
 
@@ -72,11 +66,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Function to update the map with new data
     function updateMap() {
         var minMax = getMinMaxValues(countries, selectedYear, selectedData);
-        //console.log('MinMax:', minMax);
         coffeeStatsLayer.eachLayer(function (layer) {
             var feature = layer.feature;
             var value = getDataForYear(feature.properties.ratings, selectedYear, selectedData);
-            console.log('Country:', feature.properties.ADMIN, 'Value:', value);
             layer.setStyle({
                 weight: 2,
                 opacity: 1,
@@ -94,7 +86,6 @@ document.addEventListener('DOMContentLoaded', function () {
         style: function (feature) {
             var minMax = getMinMaxValues(countries, selectedYear, selectedData);
             var value = getDataForYear(feature.properties.ratings, selectedYear, selectedData);
-            console.log('Country:', feature.properties.ADMIN, 'Initial Value:', value);
             return {
                 weight: 2,
                 opacity: 1,
@@ -121,6 +112,9 @@ document.addEventListener('DOMContentLoaded', function () {
         popupAnchor: [0, -28] // Point from which the popup should open relative to the iconAnchor
     });
 
+    // MarkerCluster group for cup exchanges
+    var cupExchangesCluster = L.markerClusterGroup();
+
     // GeoJSON layer for cup exchanges with enhanced popup information
     var cupExchangesLayer = L.geoJson(refills, {
         pointToLayer: function (feature, latlng) {
@@ -133,14 +127,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 'URL: ' + (props.URL || "No Link");
             layer.bindPopup(popupContent);
         }
-    }).addTo(map);
+    });
+
+    // Add the cup exchanges layer to the cluster group
+    cupExchangesCluster.addLayer(cupExchangesLayer);
+    map.addLayer(cupExchangesCluster);
 
     // Layers control to toggle on and off the coffee statistics and places layers
     var baseLayers = {};
     var overlays = {
         "Coffee Statistics": coffeeStatsLayer,
         "Nearby Coffee Shops": coffeeShopsLayer,
-        "Nearby Cup Exchanges": cupExchangesLayer
+        "Nearby Cup Exchanges": cupExchangesCluster
     };
 
     L.control.layers(baseLayers, overlays).addTo(map);
