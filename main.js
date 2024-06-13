@@ -157,4 +157,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initial map update
     updateMap();
+
+    // Function to plot user location and nearby coffee shops
+    function plotUserLocation(lat, lng) {
+        var userMarker = L.marker([lat, lng]).addTo(map)
+            .bindPopup('Your Location')
+            .openPopup();
+
+        map.setView([lat, lng], 14); // Zoom in to user location
+
+        // Fetch and plot nearby coffee locations
+        fetchNearbyCoffeeLocations(lat, lng);
+    }
+
+    // fetch nearby coffee locations using an external API
+    function fetchNearbyCoffeeLocations(lat, lng) {
+        var overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];node[amenity=cafe](around:5000,${lat},${lng});out;`;
+
+        fetch(overpassUrl)
+            .then(response => response.json())
+            .then(data => {
+                data.elements.forEach(function (element) {
+                    var coffeeShopMarker = L.marker([element.lat, element.lon], { icon: coffeeIcon })
+                        .addTo(coffeeShopsLayer)
+                        .bindPopup('<b>' + (element.tags.name || 'Unnamed Cafe') + '</b><br>' +
+                            'Address: ' + (element.tags['addr:street'] || 'No Address') + '<br>' +
+                            'Website: ' + (element.tags.website || 'No Website'));
+                });
+            })
+            .catch(error => console.error('Error fetching coffee locations:', error));
+    }
+
+    // Request user's geolocation
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            var lat = position.coords.latitude;
+            var lng = position.coords.longitude;
+            plotUserLocation(lat, lng);
+        }, function (error) {
+            console.error('Error getting geolocation:', error);
+        });
+    } else {
+        console.error('Geolocation is not supported by this browser.');
+    }
 });
