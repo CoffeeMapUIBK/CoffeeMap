@@ -20,7 +20,17 @@ document.addEventListener('DOMContentLoaded', function () {
     // Variables for the selected year and data type
     var selectedYear = '2016';
     var selectedData = 'Total.Cup.Points';
+    var selectedMonth = 0; // Default to January
+    var climateData = [];
 
+    // Load climate data from external file
+    fetch('climateData.json')
+        .then(response => response.json())
+        .then(data => {climateData = data;  
+        updateMap(); // Update the map after loading climate data
+        })
+        .catch(error => console.error('Error loading climate data:', error));
+    
     // Function to get data for a specific year and data type
     function getDataForYear(ratings, year, dataType) {
         if (!ratings || !Array.isArray(ratings)) {
@@ -69,6 +79,23 @@ document.addEventListener('DOMContentLoaded', function () {
         coffeeStatsLayer.eachLayer(function (layer) {
             var feature = layer.feature;
             var value = getDataForYear(feature.properties.ratings, selectedYear, selectedData);
+            ///
+            var popupContent = 'Country: ' + (feature.properties.ADMIN || 'Unknown') + '<br>Value (' + selectedYear + '): ' + (value !== null ? value : 'NA');
+
+            // Add climate data to the popup content
+            var climateInfo = getClimateData(feature.properties.ADMIN, selectedMonth);
+            if (climateInfo) {
+                popupContent += '<br><br><b>Closest Climate Data for: ' + climateInfo.city + ' (' + getMonthName(selectedMonth) + '):</b><br>' +
+                'High: ' + climateInfo.data.high + '°C<br>' +
+                'Low: ' + climateInfo.data.low + '°C<br>' +
+                'Dry Days: ' + climateInfo.data.dryDays + '<br>' +
+                'Snow Days: ' + climateInfo.data.snowDays + '<br>' +
+                'Rainfall: ' + climateInfo.data.rainfall + ' mm';
+            }
+            else{
+                popupContent += '<br>No Climate Data Available'
+            }
+            ///
             layer.setStyle({
                 weight: 2,
                 opacity: 1,
@@ -77,8 +104,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 fillOpacity: 0.7,
                 fillColor: getColor(value, minMax.min, minMax.max)
             });
-            layer.bindPopup('Country: ' + (feature.properties.ADMIN || 'Unknown') + '<br>Value (' + selectedYear + '): ' + (value !== null ? value : 'NA'));
+            layer.bindPopup(popupContent);
         });
+    }
+
+    function getClimateData(country, month) {
+        for (var i = 0; i < climateData.length; i++) {
+            if (climateData[i].country === country) {
+                return {
+                    city: climateData[i].city,
+                    data: climateData[i].monthlyAvg[month]
+                };            
+            }
+        }
+        return null;
+    }
+
+    function getMonthName(monthIndex) {
+        var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        return monthNames[monthIndex];
     }
 
     // GeoJSON layer for coffee statistics
@@ -97,7 +141,20 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         onEachFeature: function (feature, layer) {
             var value = getDataForYear(feature.properties.ratings, selectedYear, selectedData);
-            layer.bindPopup('Country: ' + (feature.properties.ADMIN || 'Unknown') + '<br>Value (' + selectedYear + '): ' + (value !== null ? value : 'NA'));
+            var popupContent = 'Country: ' + (feature.properties.ADMIN || 'Unknown') + '<br>Value (' + selectedYear + '): ' + (value !== null ? value : 'NA');
+
+            // Add climate data to the popup content
+            var climateInfo = getClimateData(feature.properties.ADMIN, selectedMonth);
+            if (climateInfo) {
+                popupContent += '<br><br><b>Closest Climate Data for: ' + climateInfo.city + ' (' + getMonthName(selectedMonth) + '):</b><br>' +
+                'High: ' + climateInfo.data.high + '°C<br>' +
+                'Low: ' + climateInfo.data.low + '°C<br>' +
+                'Dry Days: ' + climateInfo.data.dryDays + '<br>' +
+                'Snow Days: ' + climateInfo.data.snowDays + '<br>' +
+                'Rainfall: ' + climateInfo.data.rainfall + ' mm';
+            }
+
+            layer.bindPopup(popupContent);
         }
     }).addTo(map);
 
@@ -112,13 +169,20 @@ document.addEventListener('DOMContentLoaded', function () {
         popupAnchor: [0, -28] // Point from which the popup should open relative to the iconAnchor
     });
 
+    var recupIcon = L.icon({
+        iconUrl: 'icons/recuplogo.png', // Replace with the path to your coffee icon image
+        iconSize: [40, 40], // Size of the icon
+        iconAnchor: [16, 37], // Point of the icon which will correspond to marker's location
+        popupAnchor: [0, -28] // Point from which the popup should open relative to the iconAnchor
+    });
+
     // MarkerCluster group for cup exchanges
     var cupExchangesCluster = L.markerClusterGroup();
 
     // GeoJSON layer for cup exchanges with enhanced popup information
     var cupExchangesLayer = L.geoJson(refills, {
         pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, { icon: coffeeIcon });
+            return L.marker(latlng, { icon: recupIcon });
         },
         onEachFeature: function (feature, layer) {
             var props = feature.properties;
@@ -154,6 +218,12 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('yearLabel').innerText = selectedYear;
         updateMap();
     });
+
+    document.getElementById('monthSelector').addEventListener('change', function (e) {
+        selectedMonth = parseInt(e.target.value);
+        updateMap();
+    });
+    
 
     // Initial map update
     updateMap();
