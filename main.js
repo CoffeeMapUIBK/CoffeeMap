@@ -9,7 +9,14 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    var map = L.map('map').setView([20, 0], 2); // Center the map for a global view
+    var map = L.map('map',
+        {
+            fullscreenControl: true,
+            fullscreenControlOptions: {
+                position: 'topleft'
+            }
+        }
+    ).setView([20, 0], 2); // Center the map for a global view
 
     // Add a basic tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
