@@ -24,12 +24,15 @@ document.addEventListener('DOMContentLoaded', function () {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    L.Control.geocoder().addTo(map);
+
+
     // Initialize the minimap
     var miniMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     });
-    
-    var miniMap = new L.Control.MiniMap(miniMapLayer,{
+
+    var miniMap = new L.Control.MiniMap(miniMapLayer, {
         toggleDisplay: true,
         width: 250,        // Set the width of the minimap
         height: 150,        // Set the height of the minimap
@@ -37,7 +40,10 @@ document.addEventListener('DOMContentLoaded', function () {
         minimized: false,
         position: 'bottomleft'
     }).addTo(map);
-// 
+    // 
+
+    var miniMap = new L.Control.MiniMap(miniMapLayer).addTo(map);
+    // 
     // Variables for the selected year and data type
     var selectedYear = '2016';
     var selectedData = 'Total.Cup.Points';
