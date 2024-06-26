@@ -1,5 +1,5 @@
 currentCountry = null;
-let myChart;
+let myCharts;
 
 function getQueryParams() {
     let params = {};
@@ -30,15 +30,15 @@ function displayData() {
 window.onload = displayData;
 
 function loadChart(data) {
-    if (myChart) {
-        myChart.destroy(); // Destroy the existing chart instance
+    if (myCharts) {
+        myCharts.destroy(); // Destroy the existing chart instance
     }
 
     var ctx = document.getElementById('myChart').getContext('2d');
     var labels = data.map(entry => entry.year);
     var values = data.map(entry => entry.value);
 
-    myChart = new Chart(ctx, {
+    myCharts = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
@@ -81,8 +81,10 @@ document.getElementById('dataSelector').addEventListener('change', function () {
     const selectedField = this.value;
     const data = getCountryData(currentCountry, selectedField);
     if (data && data.length > 0) {
+        document.getElementById('error').setAttribute('style', 'display: none;');
         loadChart(data);
     } else {
+        document.getElementById('error').setAttribute('style', 'display: block;');
         console.error('No data available for the selected country and field.');
     }
 });
