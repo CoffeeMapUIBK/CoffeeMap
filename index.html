@@ -42,8 +42,10 @@
                     CoffeeMap</p>
             </div>
             <div class="space-x-3">
-                <div id="control-panel">
-                    <select id="dataSelector">
+                <div id="control-panel" class="shadow-lg">
+                    <label for="dataSelector" class="block text-sm font-medium text-gray-700 mb-2">Select Data of
+                        Interest:</label>
+                    <select id="dataSelector" class="max-w-sm bg-white p-2 text-sm rounded-lg shadow-md">
                         <option value="Total.Cup.Points">Total Cup Points</option>
                         <option value="Aroma">Aroma</option>
                         <option value="Flavor">Flavor</option>
@@ -75,12 +77,14 @@
                         <option value="Total Distribution">Total Distribution</option>
                         <option value="Total Supply">Total Supply</option>
                     </select>
-                    <div class="slider-container">
-                        <label for="yearSlider">Year: <span id="yearLabel">2016</span></label>
+                    <div class="slider-container mt-2">
+                        <label class=" text-sm font-medium text-gray-700 " for="yearSlider">Year <span
+                                id="yearLabel">2016</span></label>
                         <input type="range" id="yearSlider" min="1960" max="2024" value="2016" step="1">
                     </div>
-                    <div>
-                        <label for="monthSelector">Select Month for Climate Data:</label>
+                    <div class="mt-2">
+                        <label for="monthSelector" class="block text-sm font-medium text-gray-700 mb-2">Select Month for
+                            Climate Data</label>
                         <select id="monthSelector">
                             <option value="0">January</option>
                             <option value="1">February</option>

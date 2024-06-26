@@ -82,21 +82,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
             var value = getDataForYear(feature.properties.ratings, selectedYear, selectedData);
             ///
-            var popupContent = 'Country: ' + (feature.properties.ADMIN || 'Unknown') + '<br>Value (' + selectedYear + '): ' + (value !== null ? value : 'NA');
-
+            var popupContent = `
+    <div class="p-4">
+        <div class="text-lg bold mb-1">Country: 
+            <span class="text-amber-600">${feature.properties.ADMIN || 'Unknown'}</span>
+        </div>
+        <div class="text-gray-700">
+            <span class="font-medium">Value (${selectedYear}):</span> 
+            ${value !== null ? value.toFixed(2) : 'NA'}
+        </div>
+    </div>
+`;
             // Add climate data to the popup content
             var climateInfo = getClimateData(feature.properties.ADMIN, selectedMonth);
             if (climateInfo) {
-                popupContent += '<br><br><b>Closest Climate Data for: ' + climateInfo.city + ' (' + getMonthName(selectedMonth) + '):</b><br>' +
-                    'High: ' + climateInfo.data.high + '°C<br>' +
-                    'Low: ' + climateInfo.data.low + '°C<br>' +
-                    'Dry Days: ' + climateInfo.data.dryDays + '<br>' +
-                    'Snow Days: ' + climateInfo.data.snowDays + '<br>' +
-                    'Rainfall: ' + climateInfo.data.rainfall + ' mm';
+                popupContent += `
+        <div class="mt-1 p-2 bg-white">
+            <div class="font-semibold mb-2">Closest Climate Data for: 
+                <span class="">${climateInfo.city}</span> 
+                (${getMonthName(selectedMonth)}):
+            </div>
+            <div class="text-gray-700">
+                <div class="mt-2">
+                    <span class="font-medium font-semibold">High:</span> 
+                    <span class="text-red-600">${climateInfo.data.high}°C</span>
+                </div>
+                <div class="mt-1">
+                    <span class="font-medium font-semibold">Low:</span> 
+                    <span class="text-blue-600">${climateInfo.data.low}°C</span>
+                </div>
+                <div class="mt-1">
+                    <span class="font-medium font-semibold">Dry Days:</span> 
+                    ${climateInfo.data.dryDays}
+                </div>
+                <div class="mt-1">
+                    <span class="font-medium font-semibold">Snow Days:</span> 
+                    ${climateInfo.data.snowDays}
+                </div>
+                <div class="mt-1">
+                    <span class="font-medium font-semibold">Rainfall:</span> 
+                    ${climateInfo.data.rainfall} mm
+                </div>
+            </div>
+        </div>
+    `;
+            } else {
+                popupContent += '<br><div class="mt-1 p-2 bg-white italic">No Climate Data Available</div>';
             }
-            else {
-                popupContent += '<br>No Climate Data Available'
-            }
+
 
 
 
