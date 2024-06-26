@@ -22,7 +22,12 @@ document.addEventListener('DOMContentLoaded', function () {
         attribution: '© OpenStreetMap contributors'
     });
     
-    var miniMap = new L.Control.MiniMap(miniMapLayer).addTo(map);
+    var miniMap = new L.Control.MiniMap(miniMapLayer,{
+        toggleDisplay: true,
+
+        minimized: false,
+        position: 'bottomleft'
+    }).addTo(map);
 // 
     // Variables for the selected year and data type
     var selectedYear = '2016';
