@@ -26,11 +26,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Load climate data from external file
     fetch('climateData.json')
         .then(response => response.json())
-        .then(data => {climateData = data;  
-        updateMap(); // Update the map after loading climate data
+        .then(data => {
+            climateData = data;
+            updateMap(); // Update the map after loading climate data
         })
         .catch(error => console.error('Error loading climate data:', error));
-    
+
     // Function to get data for a specific year and data type
     function getDataForYear(ratings, year, dataType) {
         if (!ratings || !Array.isArray(ratings)) {
@@ -63,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Color based on data value and dynamically calculated scale
     function getColor(value, min, max) {
-        if (value === null) return '#FFEDA0'; // Default color for NA
+        if (value === null) return '#FFFFFF'; // Default color for NA
         var scale = (value - min) / (max - min);
         return scale > 0.8 ? '#800026' :
             scale > 0.6 ? '#BD0026' :
@@ -86,15 +87,18 @@ document.addEventListener('DOMContentLoaded', function () {
             var climateInfo = getClimateData(feature.properties.ADMIN, selectedMonth);
             if (climateInfo) {
                 popupContent += '<br><br><b>Closest Climate Data for: ' + climateInfo.city + ' (' + getMonthName(selectedMonth) + '):</b><br>' +
-                'High: ' + climateInfo.data.high + '°C<br>' +
-                'Low: ' + climateInfo.data.low + '°C<br>' +
-                'Dry Days: ' + climateInfo.data.dryDays + '<br>' +
-                'Snow Days: ' + climateInfo.data.snowDays + '<br>' +
-                'Rainfall: ' + climateInfo.data.rainfall + ' mm';
+                    'High: ' + climateInfo.data.high + '°C<br>' +
+                    'Low: ' + climateInfo.data.low + '°C<br>' +
+                    'Dry Days: ' + climateInfo.data.dryDays + '<br>' +
+                    'Snow Days: ' + climateInfo.data.snowDays + '<br>' +
+                    'Rainfall: ' + climateInfo.data.rainfall + ' mm';
             }
-            else{
+            else {
                 popupContent += '<br>No Climate Data Available'
             }
+
+            popupContent += '<br> <a href="detailPage.html?data=' + feature.properties.ADMIN + '"><div class="mt-2 p-2 bg-amber-800 text-white rounded-md"><i class="fa-solid fa-table"></i> More Details</div></a>';
+
             ///
             layer.setStyle({
                 weight: 2,
@@ -114,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return {
                     city: climateData[i].city,
                     data: climateData[i].monthlyAvg[month]
-                };            
+                };
             }
         }
         return null;
@@ -147,11 +151,11 @@ document.addEventListener('DOMContentLoaded', function () {
             var climateInfo = getClimateData(feature.properties.ADMIN, selectedMonth);
             if (climateInfo) {
                 popupContent += '<br><br><b>Closest Climate Data for: ' + climateInfo.city + ' (' + getMonthName(selectedMonth) + '):</b><br>' +
-                'High: ' + climateInfo.data.high + '°C<br>' +
-                'Low: ' + climateInfo.data.low + '°C<br>' +
-                'Dry Days: ' + climateInfo.data.dryDays + '<br>' +
-                'Snow Days: ' + climateInfo.data.snowDays + '<br>' +
-                'Rainfall: ' + climateInfo.data.rainfall + ' mm';
+                    'High: ' + climateInfo.data.high + '°C<br>' +
+                    'Low: ' + climateInfo.data.low + '°C<br>' +
+                    'Dry Days: ' + climateInfo.data.dryDays + '<br>' +
+                    'Snow Days: ' + climateInfo.data.snowDays + '<br>' +
+                    'Rainfall: ' + climateInfo.data.rainfall + ' mm';
             }
 
             layer.bindPopup(popupContent);
@@ -223,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
         selectedMonth = parseInt(e.target.value);
         updateMap();
     });
-    
+
 
     // Initial map update
     updateMap();
