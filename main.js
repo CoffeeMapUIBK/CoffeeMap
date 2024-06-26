@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var minMax = getMinMaxValues(countries, selectedYear, selectedData);
         coffeeStatsLayer.eachLayer(function (layer) {
             var feature = layer.feature;
+
             var value = getDataForYear(feature.properties.ratings, selectedYear, selectedData);
             ///
             var popupContent = 'Country: ' + (feature.properties.ADMIN || 'Unknown') + '<br>Value (' + selectedYear + '): ' + (value !== null ? value : 'NA');
@@ -96,6 +97,8 @@ document.addEventListener('DOMContentLoaded', function () {
             else {
                 popupContent += '<br>No Climate Data Available'
             }
+
+
 
             popupContent += '<br> <a href="detailPage.html?data=' + feature.properties.ADMIN + '"><div class="mt-2 p-2 bg-amber-800 text-white rounded-md"><i class="fa-solid fa-table"></i> More Details</div></a>';
 
