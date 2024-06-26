@@ -38,12 +38,10 @@ document.addEventListener('DOMContentLoaded', function () {
         height: 150,        // Set the height of the minimap
         zoomLevelFixed: 0, // Set the zoom level for the minimap
         minimized: false,
-        position: 'bottomleft'
+        position: 'bottomleft',
     }).addTo(map);
     // 
-
-    var miniMap = new L.Control.MiniMap(miniMapLayer).addTo(map);
-    // 
+ 
     // Variables for the selected year and data type
     var selectedYear = '2016';
     var selectedData = 'Total.Cup.Points';
