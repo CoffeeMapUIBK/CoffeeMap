@@ -32,6 +32,14 @@ document.addEventListener('DOMContentLoaded', function () {
         attribution: '© OpenStreetMap contributors'
     });
 
+    var miniMap = new L.Control.MiniMap(miniMapLayer, {
+        toggleDisplay: true,
+
+        minimized: false,
+        position: 'bottomleft'
+    }).addTo(map);
+    // 
+
     var miniMap = new L.Control.MiniMap(miniMapLayer).addTo(map);
     // 
     // Variables for the selected year and data type
