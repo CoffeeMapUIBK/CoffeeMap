@@ -31,7 +31,9 @@ document.addEventListener('DOMContentLoaded', function () {
     
     var miniMap = new L.Control.MiniMap(miniMapLayer,{
         toggleDisplay: true,
-
+        width: 250,        // Set the width of the minimap
+        height: 150,        // Set the height of the minimap
+        zoomLevelFixed: 0, // Set the zoom level for the minimap
         minimized: false,
         position: 'bottomleft'
     }).addTo(map);
