@@ -24,6 +24,13 @@ document.addEventListener('DOMContentLoaded', function () {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    // Initialize the minimap
+    var miniMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    });
+    
+    var miniMap = new L.Control.MiniMap(miniMapLayer).addTo(map);
+// 
     // Variables for the selected year and data type
     var selectedYear = '2016';
     var selectedData = 'Total.Cup.Points';
@@ -136,16 +143,11 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 popupContent += '<br><div class="mt-1 p-2 bg-white italic">No Climate Data Available</div>';
             }
-
-
-
             // link to charts
             popupContent += '<br> <a href="detailPage.html?data=' + feature.properties.ADMIN + '"><div class="mt-2 p-2 bg-amber-800 text-white rounded-md"><i class="fa-solid fa-chart-simple"></i>  More Details</div></a>';
 
             // link to poem
             popupContent += '<br> <a href="poemPage.html?data=' + feature.properties.ADMIN + '"><div class="mt-2 p-2 bg-amber-800 text-white rounded-md"><i class="fa-solid fa-feather"></i>  Nice Poem</div></a>';
-
-
             ///
             layer.setStyle({
                 weight: 2,
@@ -322,3 +324,4 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('Geolocation is not supported by this browser.');
     }
 });
+
