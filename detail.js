@@ -19,14 +19,12 @@ function getQueryParams() {
 function displayData() {
     let params = getQueryParams();
     let dataElement = document.getElementById('data');
-    console.log(dataElement);
     currentCountry = params.data;
     if (params.data) {
         dataElement.innerHTML = params.data;
     } else {
-        dataElement.innerHTML = 'No data found';
+        dataElement.innerHTML = 'No Country selected';
     }
-    loadChart();
 }
 
 window.onload = displayData;
