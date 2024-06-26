@@ -132,8 +132,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+            // link to charts
+            popupContent += '<br> <a href="detailPage.html?data=' + feature.properties.ADMIN + '"><div class="mt-2 p-2 bg-amber-800 text-white rounded-md"><i class="fa-solid fa-chart-simple"></i>  More Details</div></a>';
 
-            popupContent += '<br> <a href="detailPage.html?data=' + feature.properties.ADMIN + '"><div class="mt-2 p-2 bg-amber-800 text-white rounded-md"><i class="fa-solid fa-table"></i> More Details</div></a>';
+            // link to poem
+            popupContent += '<br> <a href="poemPage.html?data=' + feature.properties.ADMIN + '"><div class="mt-2 p-2 bg-amber-800 text-white rounded-md"><i class="fa-solid fa-feather"></i>  Nice Poem</div></a>';
+
 
             ///
             layer.setStyle({
@@ -242,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var overlays = {
         "Coffee Statistics": coffeeStatsLayer,
         "Nearby Coffee Shops": coffeeShopsLayer,
-        "Nearby Cup Exchanges": cupExchangesCluster
+        "ReCup Stations": cupExchangesCluster
     };
 
     L.control.layers(baseLayers, overlays).addTo(map);
