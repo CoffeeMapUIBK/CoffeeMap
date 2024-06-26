@@ -24,13 +24,16 @@ document.addEventListener('DOMContentLoaded', function () {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    L.Control.geocoder().addTo(map);
+
+
     // Initialize the minimap
     var miniMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     });
-    
+
     var miniMap = new L.Control.MiniMap(miniMapLayer).addTo(map);
-// 
+    // 
     // Variables for the selected year and data type
     var selectedYear = '2016';
     var selectedData = 'Total.Cup.Points';
